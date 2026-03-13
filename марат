@@ -1,0 +1,60 @@
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.image import Image
+from kivy.uix.popup import Popup
+from kivy.uix.scrollview import ScrollView
+from kivy.core.window import Window
+import numpy as np
+from PIL import Image as PilImage
+import io
+import os
+
+class TrendiqPro(App):
+    def build(self):
+        layout = BoxLayout(orientation='vertical', padding=20, spacing=20)
+        
+        btn = Button(text='📈 Загрузить график для AI-анализа', font_size=24, size_hint=(1, 0.2))
+        btn.bind(on_press=self.analyze)
+        layout.add_widget(btn)
+        
+        self.img = Image(source='', size_hint=(1, 0.4))
+        layout.add_widget(self.img)
+        
+        self.result = Label(text='Trendiq Pro Clone\n\nЗагрузите скриншот графика (TradingView/Binance)\nдля анализа тренда, сигналов Buy/Sell.', 
+                            size_hint=(1, 0.4), halign='center', valign='middle', 
+                            font_size=18, color=(1,1,0,1))
+        scroll = ScrollView()
+        scroll.add_widget(self.result)
+        layout.add_widget(scroll)
+        
+        return layout
+    
+    def analyze(self, instance):
+        # Симуляция выбора файла (на Android используйте plyer)
+        # Для demo: мок-анализ
+        arr = np.random.randint(0,255,(300,400,3), dtype=np.uint8)
+        left = np.mean(arr[:, :200])
+        right = np.mean(arr[:, 200:])
+        if right > left + 30:
+            trend, signal = '🟢 Бычий тренд', '🚀 СИЛЬНАЯ ПОКУПКА'
+        elif right < left - 30:
+            trend, signal = '🔴 Медвежий тренд', '💥 СИЛЬНАЯ ПРОДАЖА'
+        else:
+            trend, signal = '🟡 Боковик', '⏳ ЖДАТЬ'
+        
+        analysis = f'AI Анализ:\n\n{trend}\n{signal}\n\nПоддержка: 1.2345\nСопротивление: 1.2500\nРиск: Низкий'
+        self.result.text = analysis
+        
+        # Мок-график
+        img = PilImage.fromarray(arr).resize((400,300))
+        buf = io.BytesIO()
+        img.save(buf, 'png')
+        buf.seek(0)
+        self.img.texture = self.img.texture_from_data(buf.getvalue(), 'png')
+
+if __name__ == '__main__':
+    Window.size = (360, 640)
+    TrendiqPro().run()
+
